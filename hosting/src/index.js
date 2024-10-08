@@ -1,8 +1,6 @@
 function search(event) {
   event.preventDefault();
   let searchInputElement = document.querySelector("#search-input");
-  let cityElement = document.querySelector("#current-city");
-  cityElement.innerHTML = searchInputElement.value;
 
   let apiKey = "f9b9501odb4d5cd3642t33644963aae9";
   let unit = "metric";
@@ -53,5 +51,7 @@ function showTemperature(response) {
     ".current-temperature-value"
   );
 
+  let cityElement = document.querySelector("#current-city");
+  cityElement.innerHTML = weatherData.city;
   currentTemperatureElement.innerHTML = currentTemperature;
 }

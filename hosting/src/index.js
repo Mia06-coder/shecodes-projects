@@ -50,9 +50,6 @@ function updateCurrentWeather(weatherData) {
   document.querySelector(
     ".current-temperature-icon"
   ).innerHTML = `<img src="${weatherData.condition.icon_url}" alt="Weather icon">`;
-  document.querySelector(".temp-value").innerHTML = Math.round(
-    weatherData.temperature.current
-  );
 }
 
 // Search weather data by city
@@ -64,14 +61,9 @@ function search(event) {
   let unit = "metric";
   let apiUrl = `https://api.shecodes.io/weather/v1/current?query=${searchInputElement.value}&key=${apiKey}&units=${unit}`;
 
-  axios
-    .get(apiUrl)
-    .then((response) => {
-      updateCurrentWeather(response.data);
-    })
-    .catch((error) => {
-      displayError(`${error}`);
-    });
+  axios.get(apiUrl).then((response) => {
+    updateCurrentWeather(response.data);
+  });
 }
 
 // Display current date and time on page load
@@ -84,14 +76,9 @@ function loadDefaultWeather() {
   const unit = "metric";
   const currentWeatherUrl = `https://api.shecodes.io/weather/v1/current?query=${defaultCity}&key=${apiKey}&units=${unit}`;
 
-  axios
-    .get(currentWeatherUrl)
-    .then((response) => {
-      updateCurrentWeather(response.data); // Update UI on successful fetch
-    })
-    .catch(() => {
-      displayError("Unable to load default weather. Please try again.");
-    });
+  axios.get(currentWeatherUrl).then((response) => {
+    updateCurrentWeather(response.data); // Update UI on successful fetch
+  });
 }
 
 // Event listener for search form submission

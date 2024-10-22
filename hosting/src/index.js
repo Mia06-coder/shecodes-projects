@@ -1,19 +1,16 @@
-function search(event) {
-  event.preventDefault();
-  let searchInputElement = document.querySelector("#search-input");
-
-  let apiKey = "f9b9501odb4d5cd3642t33644963aae9";
-  let unit = "metric";
-  let apiUrl = `https://api.shecodes.io/weather/v1/current?query=${searchInputElement.value}&key=${apiKey}&units=${unit}`;
-
-  axios.get(apiUrl).then(showTemperature);
+// Show current date and time
+function displayCurrentDateTime() {
+  let currentDateElement = document.querySelector("#current-date");
+  currentDateElement.innerHTML = formatDate(new Date());
 }
 
+// Format date into readable string
 function formatDate(date) {
   let minutes = date.getMinutes();
   let hours = date.getHours();
-  let day = date.getDay();
+  let dayIndex = date.getDay();
 
+  // Add leading zero for single-digit hours/minutes
   if (minutes < 10) {
     minutes = `0${minutes}`;
   }
@@ -22,7 +19,7 @@ function formatDate(date) {
     hours = `0${hours}`;
   }
 
-  let days = [
+  const days = [
     "Sunday",
     "Monday",
     "Tuesday",
@@ -32,26 +29,73 @@ function formatDate(date) {
     "Saturday",
   ];
 
-  let formattedDay = days[day];
+  let formattedDay = days[dayIndex];
   return `${formattedDay} ${hours}:${minutes}`;
 }
 
-let searchForm = document.querySelector("#search-form");
-searchForm.addEventListener("submit", search);
-
-let currentDateELement = document.querySelector("#current-date");
-let currentDate = new Date();
-
-currentDateELement.innerHTML = formatDate(currentDate);
-
-function showTemperature(response) {
-  let weatherData = response.data;
-  let currentTemperature = Math.round(weatherData.temperature.current);
-  let currentTemperatureElement = document.querySelector(
-    ".current-temperature-value"
+// Update DOM with current weather data only on successful fetch
+function updateCurrentWeather(weatherData) {
+  document.querySelector("#current-city").innerHTML = weatherData.city;
+  document.querySelector(".current-temperature-value").innerHTML = Math.round(
+    weatherData.temperature.current
   );
-
-  let cityElement = document.querySelector("#current-city");
-  cityElement.innerHTML = weatherData.city;
-  currentTemperatureElement.innerHTML = currentTemperature;
+  document.querySelector(".weather-condition").innerHTML =
+    weatherData.condition.description;
+  document.querySelector(".humidity").innerHTML = Math.round(
+    weatherData.temperature.humidity
+  );
+  document.querySelector(".wind-speed").innerHTML = Math.round(
+    weatherData.wind.speed
+  );
+  document.querySelector(
+    ".current-temperature-icon"
+  ).innerHTML = `<img src="${weatherData.condition.icon_url}" alt="Weather icon">`;
+  document.querySelector(".temp-value").innerHTML = Math.round(
+    weatherData.temperature.current
+  );
 }
+
+// Search weather data by city
+function search(event) {
+  event.preventDefault();
+
+  let searchInputElement = document.querySelector("#search-input");
+  let apiKey = "f9b9501odb4d5cd3642t33644963aae9";
+  let unit = "metric";
+  let apiUrl = `https://api.shecodes.io/weather/v1/current?query=${searchInputElement.value}&key=${apiKey}&units=${unit}`;
+
+  axios
+    .get(apiUrl)
+    .then((response) => {
+      updateCurrentWeather(response.data);
+    })
+    .catch((error) => {
+      displayError(`${error}`);
+    });
+}
+
+// Display current date and time on page load
+displayCurrentDateTime();
+
+// Display default weather details on page load
+function loadDefaultWeather() {
+  const defaultCity = "Toronto";
+  const apiKey = "f9b9501odb4d5cd3642t33644963aae9";
+  const unit = "metric";
+  const currentWeatherUrl = `https://api.shecodes.io/weather/v1/current?query=${defaultCity}&key=${apiKey}&units=${unit}`;
+
+  axios
+    .get(currentWeatherUrl)
+    .then((response) => {
+      updateCurrentWeather(response.data); // Update UI on successful fetch
+    })
+    .catch(() => {
+      displayError("Unable to load default weather. Please try again.");
+    });
+}
+
+// Event listener for search form submission
+document.querySelector("#search-form").addEventListener("submit", search);
+
+// Call this function when the page loads
+document.addEventListener("DOMContentLoaded", loadDefaultWeather);
